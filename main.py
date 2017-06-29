@@ -2,6 +2,7 @@ import urllib
 import requests
 import re
 import time
+import os
 from bs4 import BeautifulSoup
 from pyPdf import PdfFileReader
 from tabula import read_pdf
@@ -18,6 +19,25 @@ year = time.strftime( "%Y" )
 
 # The same format the dates are in the PDF
 currentDate = weekDay + " " + date + " " + monthName + " " + year
+
+
+def readMyLocations( inFile ):
+    
+    # Read file into memory then close it
+    print "Reading in your locations\n"
+    fp = open( inFile )
+    fullFile = fp.read()
+    fp.close()
+
+    # Seperate the rows into a list and return it
+    mySuburbs = fullFile.split( '\n' )
+    # Remove the last empty element that comes from the last \n
+    mySuburbs.pop()
+    
+    print "Your Locations: "
+    print mySuburbs, "\n"
+    
+    return mySuburbs
 
 
 # Find newest pdf
@@ -45,14 +65,14 @@ def findCurrentPDF():
 # Download pdf
 def downloadPDF( url ):
 
-    # TODO: 
-    # Change file name/path
-    # Delete file after use
-
     print "Downloading PDF"
     urllib.urlretrieve( url, fileName )
     print "Download Complete!\n"
 
+
+# Delete any temp files
+def cleanUp():
+    os.remove( fileName )
 
 # Parse PDF
 def findReleventTable():
@@ -80,9 +100,6 @@ def findReleventTable():
 def findReleventLocations( releventSuburbs ):
     # Grab the table that corresponds with today
     table = findReleventTable()
-
-    # TODO: Romove next line after development
-    #print table
 
     suburbsOne = table[1]
     suburbsTwo = table[3]
@@ -115,21 +132,30 @@ def findReleventLocations( releventSuburbs ):
 
 # Display relevent speed cameras
 
-
-print "\n"
-
-downloadPDF( findCurrentPDF() )
-
-myLocations = ['Maddington','Kenwick','Bentley']
-
-locations = findReleventLocations( myLocations )
-
+def displayLocations( locations ):
 # Print all elements in tuple formatted as:
 #
 # Suburb
 # [ Street Name ]
 #
+    # First test if there is any values in locations
+    if not locations:
+        print "No spped cameras relevent to you, your safe!\n"
+    else:
+        for a, b in locations:
+            print a
+            print "[ " + b + " ]\n"
 
-for a, b in locations:
-    print a
-    print "[ " + b + " ]\n"
+
+
+print "\n"
+
+downloadPDF( findCurrentPDF() )
+
+myLocations = readMyLocations( "mySuburbs.txt" )
+
+locations = findReleventLocations( myLocations )
+
+displayLocations( locations )
+
+cleanUp()
