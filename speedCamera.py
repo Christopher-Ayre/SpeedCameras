@@ -2,27 +2,29 @@ import urllib
 import requests
 import re
 import time
+import datetime
 import os
 from bs4 import BeautifulSoup
 from pyPdf import PdfFileReader
 from tabula import read_pdf
+
 
 # Constants
 url = "http://www.police.wa.gov.au/Traffic/Cameras/Camera-locations"
 fileName = "locations.pdf"
 
 # Need to convert names to upper to match table format
-weekDay = ( time.strftime( "%A" ).upper() )
+weekDay = time.strftime( "%A" )
 date = time.strftime( "%d" )
-monthName = ( time.strftime( "%B" ).upper() )
+monthName = time.strftime( "%B" )
 year = time.strftime( "%Y" )
 
 # The same format the dates are in the PDF
-currentDate = weekDay + " " + date + " " + monthName + " " + year
+currentDate = weekDay.upper() + " " + date + " " + monthName.upper() + " " + year
 
 
 def readMyLocations( inFile ):
-    
+
     # Read file into memory then close it
     print "Reading in your locations\n"
     fp = open( inFile )
@@ -33,10 +35,10 @@ def readMyLocations( inFile ):
     mySuburbs = fullFile.split( '\n' )
     # Remove the last empty element that comes from the last \n
     mySuburbs.pop()
-    
+
     print "Your Locations: "
     print mySuburbs, "\n"
-    
+
     return mySuburbs
 
 
@@ -45,14 +47,25 @@ def findCurrentPDF():
 
     print "Finding PDF for current time period"
 
-    # First PDF link appears to be the latest, potentially upgrade later.
+    # Find today
+    today = datetime.date.today()
+
+    # Find the start of the week, this is how they identify their camera pdfs
+    startOfWeek = today - datetime.timedelta( days = today.weekday() )
+
+    startOfWeekString = startOfWeek.strftime('%d%m%Y')
 
     sourceCode = requests.get( url )
     sourceCode = sourceCode.text
     htmlCode = BeautifulSoup( sourceCode, 'html.parser' )
 
-    # Select the first link that has "media" in the url, get that links url
-    firstLink = htmlCode.select_one( "a[href*=media]" ).get( "href" )
+    # Get a list of all the media links
+    linkList = htmlCode.select( "a[href*=media]" ) #.get( "href" )
+
+    # Iterate through list and find this weeks link
+    for i in linkList:
+        if startOfWeekString in i.get("href"):
+            firstLink = i.get("href")
 
     # Concatenate strings to get final link url
     pdfLink = "http://www.police.wa.gov.au" + firstLink
@@ -92,8 +105,8 @@ def findReleventTable():
     print "\n" * 50
     print "All cameras found!\n"
 
-    return locations 
-        
+    return locations
+
 
 
 # Find loactions near me ( possible file input? )
@@ -112,14 +125,14 @@ def findReleventLocations( releventSuburbs ):
     # Iterate through first list
     # Try to join lists again later
     pos = 0
-    for ii in suburbsOne: 
+    for ii in suburbsOne:
         if ii in releventSuburbs:
             locations.append((ii,streetsOne[pos]))
         pos = pos + 1
 
     # Iterate through second list
     pos = 0
-    for ii in suburbsTwo: 
+    for ii in suburbsTwo:
         if ii in releventSuburbs:
             locations.append((ii,streetsTwo[pos]))
         pos = pos + 1
@@ -164,4 +177,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
