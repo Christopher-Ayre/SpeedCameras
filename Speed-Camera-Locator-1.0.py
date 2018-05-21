@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
-from Tkinter import *
+try:
+    #Python2
+    from Tkinter import *
+except ImportError:
+    #Python3
+    from tkinter import *
+
 from speedCamera import *
 
 top = Tk()
