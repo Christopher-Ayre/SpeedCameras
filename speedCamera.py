@@ -104,7 +104,7 @@ def findReleventTable():
             locations = ii
 
     # Newlines to remove errors from view
-    print "\n" * 50
+    #print "\n" * 50
     print "All cameras found!\n"
 
     return locations
