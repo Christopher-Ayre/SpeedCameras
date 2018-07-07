@@ -12,23 +12,27 @@ class SpeedCameraFactory:
         #If the string ends with " #F" then it is a Fixed Camera
         #Otherwise it is a variable camera
 
-        if " and " in location or " & " in location:
 
-            #Couldn't get a regex to split at both
-            streets = location.split( " and " )
+        if ( 'Suburb' not in suburb ):
 
-            if len( streets ) < 2:
-                streets = location.split( " & " )
+            if " and " in location or " & " in location:
 
-            return RedLightCamera( suburb, streets[0], streets[1] )
+                #Couldn't get a regex to split at both
+                streets = location.split( " and " )
 
-        elif " #F" in location:
+                if len( streets ) < 2:
+                    streets = location.split( " & " )
 
-            #remove added ending
-            location = location[:-3]
+                return RedLightCamera( suburb, streets[0], streets[1] )
 
-            return FixedCamera( suburb, location )
-        else:
-            
-            return VariableCamera( suburb, location )
+            elif " #F" in location:
 
+                #remove added ending
+                location = location[:-3]
+
+                return FixedCamera( suburb, location )
+            else:
+                
+                return VariableCamera( suburb, location )
+
+        return None
