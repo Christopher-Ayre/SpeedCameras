@@ -7,6 +7,14 @@ class CameraController:
         self.locations = None
         self.cameras = []
 
+
+    def run( self ):
+    #TESTING
+        self.loadCamLocations()
+        self.buildCameras()
+
+
+
     #Load or reload camera locations
     def loadCamLocations( self ):
 

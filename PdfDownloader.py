@@ -108,11 +108,6 @@ class PdfDownloader:
         streetsOne = locationTable[0]
         streetsTwo = locationTable[2]
 
-        print( suburbsOne + "\n\n" )
-        print( suburbsTwo + "\n\n" )
-        print( streetsOne + "\n\n" )
-        print( streetsTwo + "\n\n" )
-
         # Empty tuple to hold Suburb and street names
         locations = []
 
@@ -129,7 +124,6 @@ class PdfDownloader:
             locations.append((ii,streetsTwo[pos]))
             pos = pos + 1
 
-        print( locations )
         return locations
 
     # Delete any temp files
@@ -139,7 +133,6 @@ class PdfDownloader:
 
         for ii in locations:
             if (ii[0] != ii[0]) or ( ii == ('Suburb', 'Street Name') ):
-                print( ii[0])
                 locations.remove(ii)
 
         os.remove( fileName )
